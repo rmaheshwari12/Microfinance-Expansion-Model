@@ -77,4 +77,8 @@ confu
 summary(m1)
 plot(m1)
 
+#Creating Test Data Set
+
+test_data <- subset(finaldata, district == "Bhagalpur") #to be extracted from demographic file as the branch is not present in Finaldata
+
 
