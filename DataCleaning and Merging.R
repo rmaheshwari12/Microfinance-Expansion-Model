@@ -40,7 +40,16 @@ names(mfigrowth)[1]<- "state"
 names(mfigrowth)[2]<- "count.shg"
 names(mfigrowth)[3]<- "saving.amount.lakh.rs"
 
-unemp$rate <- as.numeric(unemp$rate)
+#Reading GSDP Data
+gsdp <- read.xlsx("Masterdata.xlsx",sheet = "GSDPPCData")
+str(gsdp)
+gsdp <- gsdp[-c(1,36),-c(2:3)]
+names(gsdp)[1] <- "state"
+names(gsdp)[2] <- "percapita16-17"
+names(gsdp)[3] <- "billion.percapita"
+gsdp$`percapita16-17` <- as.numeric(gsub("\\,","",gsdp$`percapita16-17`))
+gsdp$billion.percapita <- as.numeric(gsub("\\,","",gsdp$billion.percapita))
+
 
 #Reading State wise branchList
 branch <- import("State and District wise branch list.xlsx")
@@ -74,12 +83,16 @@ head(datafinal)
 
 #Combining demographic data and Branch level profit data
 
-finaldata <- left_join(datafinal,branch_pl, by = "branch")
-finaldata <- left_join(finaldata,unemp, by = "state")
-finaldata <- left_join(finaldata,mfigrowth,by ="state")
+finaldata <- datafinal %>%
+  left_join(branch_pl, by = "branch")%>%
+  left_join(unemp,by = "state")%>%
+  left_join(mfigrowth,by = "state")%>%
+  left_join(gsdp,by = "state")
+
 head(finaldata)
-finaldata <- finaldata[,-c(1,11)]
+finaldata <- finaldata[,-c(1,10)]
 str(finaldata)
+
 
 #Original copy of final data
 original <- finaldata
@@ -87,21 +100,22 @@ original <- finaldata
 #Imputing missing data for branches not mentioned in previous list
 finaldata[sapply(finaldata, is.numeric)] <- lapply(finaldata[sapply(finaldata, is.numeric)], function(x) ifelse(is.na(x), median(x, na.rm = TRUE), x))
 finaldata$result <- as.factor(ifelse(finaldata$finalvalue > 0,"Profit","Loss"))
-write.csv(finaldata, file = "Finaldataforanalysis.csv")
+finaldata%>% select(-result,result)
+write.csv(finaldata, file = "Finaldataforanalysis.csv") #Moving Result column to the end !
 
+
+#Modeling the Data
 m1 = glm(result~ density+sex.ratio+literacy+increase,family=binomial(link = "logit"), data = finaldata)
 m2 = glm(result~ density+sex.ratio+literacy+increase+rate,family=binomial(link = "logit"), data = finaldata)
 m3 = glm(result~ density+sex.ratio+literacy+increase+rate+finaldata$count.shg,family=binomial(link = "logit"), data = finaldata)
 m4 = glm(result~ (density*rate)+sex.ratio+literacy+increase+rate,family=binomial(link = "logit"), data = finaldata)
 m5 = glm(result~ density+sex.ratio+literacy*rate+increase,family=binomial(link = "logit"), data = finaldata)
-m6 = glm(result~ density+sex.ratio+literacy+increase*rate,family=binomial(link = "logit"), data = finaldata)m7 = glm(result~ density+sex.ratio+literacy*increase*rate,family=binomial(link = "logit"), data = finaldata)
+m6 = glm(result~ density+sex.ratio+literacy+increase*rate,family=binomial(link = "logit"), data = finaldata)
 m7 = glm(result~ density+sex.ratio+literacy,family=binomial(link = "logit"), data = finaldata)
 
 
 library(stargazer)
-
-
-stargazer(m1,m2,m3,type = "text")
+stargazer(m1,m2,m3,m4,m5,m6,m7,type = "text")
 
 summary(m7)
 
