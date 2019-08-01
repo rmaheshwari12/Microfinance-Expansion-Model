@@ -6,6 +6,7 @@ library(openxlsx)
 library(rio)
 library(tidyr)
 library(dplyr)
+library(caret)
 
 #Reading the Profit Loss data
 branch_pl <- import("F:/Vivek/Branch Pofitability wo allocationsFY18-19 (003).xls", skip=2)
@@ -24,6 +25,10 @@ demographic$increase <- as.numeric(gsub("\\%","",demographic$increase)) #removin
 demographic$literacy <- as.numeric(gsub("\\%","",demographic$literacy)) #removing % sign
 demographic$population <- as.numeric(gsub("\\,","",demographic$population)) #removing comma in population data
 demographic <- transform(demographic, sex.ratio = as.numeric(sex.ratio), density = as.numeric(density))
+demographic[demographic=="westBengal"]<- "West Bengal"
+demographic[demographic=="bihar"]<- "Bihar"
+demographic[demographic=="Odissa"]<- "Odisha"
+demographic[demographic=="jharkhand"]<- "Jharkhand"
 
 #Reading Unemployment Data
 unemp <-read.xlsx("Masterdata.xlsx", sheet = "UnempData")
@@ -100,55 +105,59 @@ original <- finaldata
 #Imputing missing data for branches not mentioned in previous list
 finaldata[sapply(finaldata, is.numeric)] <- lapply(finaldata[sapply(finaldata, is.numeric)], function(x) ifelse(is.na(x), median(x, na.rm = TRUE), x))
 finaldata$result <- as.factor(ifelse(finaldata$finalvalue > 0,"Profit","Loss"))
-finaldata%>% select(-result,result)
-write.csv(finaldata, file = "Finaldataforanalysis.csv") #Moving Result column to the end !
+finaldata <- finaldata%>% select(-result,result) #Moving Result column to the end !
+write.csv(finaldata, file = "Finaldataforanalysis1.csv") 
 
 
-#Modeling the Data
-m1 = glm(result~ density+sex.ratio+literacy+increase,family=binomial(link = "logit"), data = finaldata)
-m2 = glm(result~ density+sex.ratio+literacy+increase+rate,family=binomial(link = "logit"), data = finaldata)
-m3 = glm(result~ density+sex.ratio+literacy+increase+rate+finaldata$count.shg,family=binomial(link = "logit"), data = finaldata)
-m4 = glm(result~ (density*rate)+sex.ratio+literacy+increase+rate,family=binomial(link = "logit"), data = finaldata)
-m5 = glm(result~ density+sex.ratio+literacy*rate+increase,family=binomial(link = "logit"), data = finaldata)
-m6 = glm(result~ density+sex.ratio+literacy+increase*rate,family=binomial(link = "logit"), data = finaldata)
-m7 = glm(result~ density+sex.ratio+literacy,family=binomial(link = "logit"), data = finaldata)
+#Correlation Plot to check multicollinearity
+finaldata <- finaldata
+corrplot::corrplot(cor(finaldata[,unlist(lapply(finaldata, is.numeric))]),method = "number",
+                   diag = TRUE,title = "Corelation Plot",order = "AOE",tl.cex = 0.8,number.cex = 0.6)
 
+#Building the models
+
+m1 = glm(result~ density+sex.ratio+literacy,family=binomial(link = "logit"), data = finaldata)
+m2 = glm(result~ density+sex.ratio+literacy+rate,family=binomial(link = "logit"), data = finaldata)
+m3 = glm(result~ (density*rate)+sex.ratio+literacy,family=binomial(link = "logit"), data = finaldata)
+m4 = glm(result~ density+sex.ratio+literacy+count.shg,family=binomial(link = "logit"), data = finaldata)
+m5 = glm(result~ density+sex.ratio+literacy+rate+count.shg,family=binomial(link = "logit"), data = finaldata)
+summary(m5)
 
 library(stargazer)
-stargazer(m1,m2,m3,m4,m5,m6,m7,type = "text")
+stargazer(m1,m2,m3,m4,m5,type = "text")
 
-summary(m7)
-
-fitted.values(m1)
-m1$fitted.values
-confu
-summary(m1)
-plot(m1)
-rep
 
 #Creating Test Data Set
 
 test_data <- subset(demographic, district %in% c("BHAGALPUR","SAHARSA","KHAGARIA","BADARPUR","KARIMGANJ","CACHAR")) #to be extracted from demographic file as the branch is not present in Finaldata
-#predict.glm(test_data,m1)
-head(test_data)
-
-exvalue <- function(x)
-  {
-  y <- exp(-x)/(1+(exp(-x)))
-  return(y)
-}
-  
-exvalue(m1$coefficients)
-
-test.prob = predict(m1, test_data, type="response")
+test_data <- test_data %>% 
+  left_join(unemp, by ="state")%>%
+  left_join(gsdp, by = "state")%>%
+  left_join(mfigrowth, by="state")
 
 
-test_pred_num <- ifelse(test.prob > 0.5, "Profit", "Loss")
-y_pred <- factor(test_pred_num, levels=c("Loss", "Profit"))
-y_act <- test_data$
-mean(y_pred == y_act)
+#m1 Predict
 
-test.predict = rep("Loss", dim(finaldata)[12])
-test.predict[test.prob > .5] = "Profit"
-table(test.pred, as.factor(finaldata$result))
+m1.predictedvalues <- as.factor(if_else(fitted.values(m1) >0.5,"Profit","Loss"))
+confusionMatrix(m1.predictedvalues,finaldata$result)
+
+m1.predict <- predict(m1,test_data,type = "response");m1.predict
+m1.predict <- ifelse(m1.predict >0.5,"Profit","Loss");m1.predict
+
+
+#m2 Predict
+
+m2.predictedvalues <- as.factor(if_else(fitted.values(m2) >0.5,"Profit","Loss"))
+confusionMatrix(m2.predictedvalues,finaldata$result)
+
+m2.predict <- predict(m2,test_data,type = "response");m2.predict
+m2.predict <- ifelse(m2.predict >0.5,"Profit","Loss");m2.predict
+
+#m4 Predict
+
+m4.predictedvalues <- as.factor(if_else(fitted.values(m4) >0.5,"Profit","Loss"))
+confusionMatrix(m4.predictedvalues,finaldata$result)
+
+m4.predict <- predict(m4,test_data,type = "response");m4.predict
+m4.predict <- ifelse(m4.predict >0.5,"Profit","Loss");m4.predict
 

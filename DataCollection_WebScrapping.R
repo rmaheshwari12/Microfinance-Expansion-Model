@@ -1,11 +1,10 @@
-install.packages("rvest")
-install.packages("xml2")
 
 library(rvest)
 library(xml2)
 library(openxlsx)
 library(rio)
 library(tidyr)
+
 
 setwd("F:/Vivek")
 
@@ -54,21 +53,9 @@ webpage <- read_html(url)
 tbls <- html_nodes(webpage, "table")
 unemp_html <- html_nodes(tbls, xpath = '/html/body/table/tbody/tr/td/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table[2]')
 unempdata <- html_table(tbls,fill = TRUE)
-unempdata <- as.data.frame(unempdata)
+#unempdata <- as.data.frame(unempdata)
 
 unempdata <- unempdata[[16]]
-
-#######################################
-
-#NDP data
-
-url <-  "https://data.gov.in/major-indicator/state-wise-net-domestic-product-ndp-current-price"
-webpage <- read_html(url)
-tbls <- html_nodes(webpage, "table")
-
-NDP_html <- html_nodes(tbls, xpath ='//*[@id="data_table"]')
-NDPdat <- html_table(tbls,fill = TRUE)
-NDPdat <- as.data.frame(NDPdat)
 
 ######################################
 
@@ -94,18 +81,6 @@ gsdp_data <- as.data.frame(gsdp_data)
 
 gsdp_data <- gsdp_data[,-c(1,6,8:10)]
 
-######################################
-
-#GSDP data
-
-url <-  "https://en.wikipedia.org/wiki/List_of_Indian_states_and_union_territories_by_GDP"
-webpage <- read_html(url)
-tbls <- html_nodes(webpage, "table")
-
-gsdp_html1 <- html_nodes(tbls, xpath ='//*[@id="mw-content-text"]/div/table[2]')
-gsdp_data1 <- html_table(gsdp_html1,fill = TRUE)
-gsdp_data1 <- as.data.frame(gsdp_data1)
-
 #####################################
 
 #Writing the excel file
@@ -129,5 +104,5 @@ writeData(masterdata, sheet = "GSDPPCData", x = gsdp_data)
 worksheetOrder(masterdata) <- c(1,2,3,4)
 
 # Export the file
-saveWorkbook(masterdata, "Masterdata.xlsx")
+#saveWorkbook(masterdata, "Masterdata.xlsx")
 

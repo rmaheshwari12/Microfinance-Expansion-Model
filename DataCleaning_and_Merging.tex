@@ -1,0 +1,885 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={DataCleaning\_and\_Merging.R},
+            pdfauthor={Admin},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{DataCleaning\_and\_Merging.R}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{Admin}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{Thu Aug 01 18:29:46 2019}
+
+
+\begin{document}
+\maketitle
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{###############################}
+\CommentTok{#Data Cleaning and Preparation#}
+\NormalTok{###############################}
+
+\KeywordTok{library}\NormalTok{(openxlsx)}
+\KeywordTok{library}\NormalTok{(rio)}
+\KeywordTok{library}\NormalTok{(tidyr)}
+\KeywordTok{library}\NormalTok{(dplyr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Attaching package: 'dplyr'
+\end{verbatim}
+
+\begin{verbatim}
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+\end{verbatim}
+
+\begin{verbatim}
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(caret)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Loading required package: lattice
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: ggplot2
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#Reading the Profit Loss data}
+\NormalTok{branch_pl <-}\StringTok{ }\KeywordTok{import}\NormalTok{(}\StringTok{"F:/Vivek/Branch Pofitability wo allocationsFY18-19 (003).xls"}\NormalTok{, }\DataTypeTok{skip=}\DecValTok{2}\NormalTok{)}
+\NormalTok{branch_pl <-}\StringTok{ }\NormalTok{branch_pl[}\OperatorTok{-}\KeywordTok{c}\NormalTok{(}\DecValTok{56}\OperatorTok{:}\DecValTok{58}\NormalTok{),]}
+\NormalTok{branch_pl <-}\StringTok{ }\NormalTok{branch_pl }\OperatorTok{%>%}\StringTok{ }\KeywordTok{separate}\NormalTok{(}\StringTok{"Branch"}\NormalTok{,}\KeywordTok{c}\NormalTok{(}\StringTok{"BranchCode"}\NormalTok{,}\StringTok{"branch"}\NormalTok{), }\DataTypeTok{remove =} \OtherTok{TRUE}\NormalTok{) }\CommentTok{#To split the data on hyphen, space or other character}
+\KeywordTok{str}\NormalTok{(branch_pl)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 'data.frame':    55 obs. of  17 variables:
+##  $ BranchCode         : chr  "001" "002" "003" "004" ...
+##  $ branch             : chr  "DUTTAPULIA" "HANSKHALI" "MATIKUMRA" "LAUHATI" ...
+##  $ Disbursement       : num  48385000 50067800 46877800 54197000 61663000 ...
+##  $ Outstanding        : num  30689334 31743931 32385961 28679093 34690797 ...
+##  $ Interest Collection: num  5323078 5472744 6722031 6404707 6663294 ...
+##  $ Reverse            : num  256071 234283 328214 26664 34410 ...
+##  $ Booked             : num  213939 298481 26215 132217 144133 ...
+##  $ Utkarsh BC         : num  0 0 2357464 0 0 ...
+##  $ Mas/Assignment     : num  1187421 1228225 0 1109642 1342245 ...
+##  $ Own Income         : num  4094990 4310182 4064033 5402084 5432237 ...
+##  $ P.Fees             : num  455040 470677 0 425233 514371 ...
+##  $ Utkarsh Commission : num  0 0 1098541 0 0 ...
+##  $ MAS Commission     : num  357937 370237 0 334491 404607 ...
+##  $ Other Income       : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ Total Income       : num  4907966 5151095 5162574 6161808 6351215 ...
+##  $ Expenditure        : num  4649638 4370939 2039140 4438315 5342270 ...
+##  $ Profit/(Loss)      : num  258328 780157 3123434 1723493 1008945 ...
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{branch_pl <-}\StringTok{ }\NormalTok{branch_pl[,}\OperatorTok{-}\KeywordTok{c}\NormalTok{(}\DecValTok{3}\OperatorTok{:}\DecValTok{14}\NormalTok{)]}
+\KeywordTok{names}\NormalTok{(branch_pl)[}\DecValTok{5}\NormalTok{] <-}\StringTok{ "finalvalue"}
+\KeywordTok{colnames}\NormalTok{(branch_pl) <-}\StringTok{  }\KeywordTok{tolower}\NormalTok{(}\KeywordTok{make.names}\NormalTok{(}\KeywordTok{colnames}\NormalTok{(branch_pl)))}
+\NormalTok{branch_pl}\OperatorTok{$}\NormalTok{result <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(branch_pl}\OperatorTok{$}\NormalTok{finalvalue }\OperatorTok{>}\StringTok{ }\DecValTok{0}\NormalTok{,}\StringTok{"Profit"}\NormalTok{,}\StringTok{"Loss"}\NormalTok{)}
+
+\CommentTok{#Reading demographic data}
+\NormalTok{demographic <-}\StringTok{ }\KeywordTok{read.xlsx}\NormalTok{(}\StringTok{"Masterdata.xlsx"}\NormalTok{,}\DataTypeTok{sheet =} \StringTok{"Demographic"}\NormalTok{)}
+\KeywordTok{str}\NormalTok{(demographic)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 'data.frame':    138 obs. of  7 variables:
+##  $ district  : chr  "North Twenty Four Parganas" "South Twenty Four Parganas" "Barddhaman" "Murshidabad" ...
+##  $ population: chr  "10,009,781" "8,161,961" "7,717,563" "7,103,807" ...
+##  $ increase  : chr  "12.04 %" "18.17 %" "11.92 %" "21.09 %" ...
+##  $ sex.ratio : chr  "955" "956" "945" "958" ...
+##  $ literacy  : chr  "84.06 %" "77.51 %" "76.21 %" "66.59 %" ...
+##  $ density   : chr  "2445" "819" "1099" "1334" ...
+##  $ state     : chr  "westBengal" "westBengal" "westBengal" "westBengal" ...
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{demographic}\OperatorTok{$}\NormalTok{increase <-}\StringTok{ }\KeywordTok{as.numeric}\NormalTok{(}\KeywordTok{gsub}\NormalTok{(}\StringTok{"}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{%"}\NormalTok{,}\StringTok{""}\NormalTok{,demographic}\OperatorTok{$}\NormalTok{increase)) }\CommentTok{#removing % sign}
+\NormalTok{demographic}\OperatorTok{$}\NormalTok{literacy <-}\StringTok{ }\KeywordTok{as.numeric}\NormalTok{(}\KeywordTok{gsub}\NormalTok{(}\StringTok{"}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{%"}\NormalTok{,}\StringTok{""}\NormalTok{,demographic}\OperatorTok{$}\NormalTok{literacy)) }\CommentTok{#removing % sign}
+\NormalTok{demographic}\OperatorTok{$}\NormalTok{population <-}\StringTok{ }\KeywordTok{as.numeric}\NormalTok{(}\KeywordTok{gsub}\NormalTok{(}\StringTok{"}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{,"}\NormalTok{,}\StringTok{""}\NormalTok{,demographic}\OperatorTok{$}\NormalTok{population)) }\CommentTok{#removing comma in population data}
+\NormalTok{demographic <-}\StringTok{ }\KeywordTok{transform}\NormalTok{(demographic, }\DataTypeTok{sex.ratio =} \KeywordTok{as.numeric}\NormalTok{(sex.ratio), }\DataTypeTok{density =} \KeywordTok{as.numeric}\NormalTok{(density))}
+\NormalTok{demographic[demographic}\OperatorTok{==}\StringTok{"westBengal"}\NormalTok{]<-}\StringTok{ "West Bengal"}
+\NormalTok{demographic[demographic}\OperatorTok{==}\StringTok{"bihar"}\NormalTok{]<-}\StringTok{ "Bihar"}
+\NormalTok{demographic[demographic}\OperatorTok{==}\StringTok{"Odissa"}\NormalTok{]<-}\StringTok{ "Odisha"}
+\NormalTok{demographic[demographic}\OperatorTok{==}\StringTok{"jharkhand"}\NormalTok{]<-}\StringTok{ "Jharkhand"}
+
+\CommentTok{#Reading Unemployment Data}
+\NormalTok{unemp <-}\KeywordTok{read.xlsx}\NormalTok{(}\StringTok{"Masterdata.xlsx"}\NormalTok{, }\DataTypeTok{sheet =} \StringTok{"UnempData"}\NormalTok{)}
+\KeywordTok{str}\NormalTok{(unemp)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 'data.frame':    28 obs. of  2 variables:
+##  $ Unemployment.Rate.(%): chr  "States  (India)" "Andhra Pradesh" "Assam" "Bihar" ...
+##  $ Unemployment.Rate.(%): chr  "Jun 2019" "3.6" "5.5" "10.1" ...
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{names}\NormalTok{(unemp)[}\DecValTok{1}\NormalTok{]<-}\StringTok{ "state"}
+\KeywordTok{names}\NormalTok{(unemp)[}\DecValTok{2}\NormalTok{]<-}\StringTok{ "rate"}
+\NormalTok{unemp <-}\StringTok{ }\NormalTok{unemp[}\OperatorTok{-}\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{29}\NormalTok{),]}
+\NormalTok{unemp}\OperatorTok{$}\NormalTok{rate <-}\StringTok{ }\KeywordTok{as.numeric}\NormalTok{(unemp}\OperatorTok{$}\NormalTok{rate)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: NAs introduced by coercion
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#Reading MFI Growth Data}
+\NormalTok{mfigrowth <-}\KeywordTok{read.xlsx}\NormalTok{(}\StringTok{"Masterdata.xlsx"}\NormalTok{, }\DataTypeTok{sheet =} \StringTok{"MFIGrowth"}\NormalTok{)}
+\KeywordTok{str}\NormalTok{(mfigrowth)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 'data.frame':    33 obs. of  3 variables:
+##  $ Region.State     : chr  "A & N Islands (UT)" "Andhra Pradesh" "Arunachal Pradesh" "Assam" ...
+##  $ Total.No..of.SHGs: num  4998 884508 3351 292071 224469 ...
+##  $ Savings.Amount   : num  125 262950 256 9943 29667 ...
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{names}\NormalTok{(mfigrowth)[}\DecValTok{1}\NormalTok{]<-}\StringTok{ "state"}
+\KeywordTok{names}\NormalTok{(mfigrowth)[}\DecValTok{2}\NormalTok{]<-}\StringTok{ "count.shg"}
+\KeywordTok{names}\NormalTok{(mfigrowth)[}\DecValTok{3}\NormalTok{]<-}\StringTok{ "saving.amount.lakh.rs"}
+
+\CommentTok{#Reading GSDP Data}
+\NormalTok{gsdp <-}\StringTok{ }\KeywordTok{read.xlsx}\NormalTok{(}\StringTok{"Masterdata.xlsx"}\NormalTok{,}\DataTypeTok{sheet =} \StringTok{"GSDPPCData"}\NormalTok{)}
+\KeywordTok{str}\NormalTok{(gsdp)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 'data.frame':    35 obs. of  5 variables:
+##  $ State                                    : chr  "State" "Goa" "Delhi" "Sikkim" ...
+##  $ GSDP.per.capita..INR.at.Current.prices.  : chr  "18-19" "-" "402,172" "-" ...
+##  $ GSDP.per.capita..INR.at.Current.prices..1: chr  "17-18" "-" "362,790" "340,705" ...
+##  $ GSDP.per.capita..INR.at.Current.prices..2: chr  "16-17" "413,334" "329,836" "309,428" ...
+##  $ GDP.per.capita...billion.                : chr  "2016" "6,045" "4,824" "4,526" ...
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{gsdp <-}\StringTok{ }\NormalTok{gsdp[}\OperatorTok{-}\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{36}\NormalTok{),}\OperatorTok{-}\KeywordTok{c}\NormalTok{(}\DecValTok{2}\OperatorTok{:}\DecValTok{3}\NormalTok{)]}
+\KeywordTok{names}\NormalTok{(gsdp)[}\DecValTok{1}\NormalTok{] <-}\StringTok{ "state"}
+\KeywordTok{names}\NormalTok{(gsdp)[}\DecValTok{2}\NormalTok{] <-}\StringTok{ "percapita16-17"}
+\KeywordTok{names}\NormalTok{(gsdp)[}\DecValTok{3}\NormalTok{] <-}\StringTok{ "billion.percapita"}
+\NormalTok{gsdp}\OperatorTok{$}\StringTok{`}\DataTypeTok{percapita16-17}\StringTok{`}\NormalTok{ <-}\StringTok{ }\KeywordTok{as.numeric}\NormalTok{(}\KeywordTok{gsub}\NormalTok{(}\StringTok{"}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{,"}\NormalTok{,}\StringTok{""}\NormalTok{,gsdp}\OperatorTok{$}\StringTok{`}\DataTypeTok{percapita16-17}\StringTok{`}\NormalTok{))}
+\NormalTok{gsdp}\OperatorTok{$}\NormalTok{billion.percapita <-}\StringTok{ }\KeywordTok{as.numeric}\NormalTok{(}\KeywordTok{gsub}\NormalTok{(}\StringTok{"}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{,"}\NormalTok{,}\StringTok{""}\NormalTok{,gsdp}\OperatorTok{$}\NormalTok{billion.percapita))}
+
+
+\CommentTok{#Reading State wise branchList}
+\NormalTok{branch <-}\StringTok{ }\KeywordTok{import}\NormalTok{(}\StringTok{"State and District wise branch list.xlsx"}\NormalTok{)}
+\KeywordTok{str}\NormalTok{(branch)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 'data.frame':    59 obs. of  5 variables:
+##  $ Sl No.       : num  1 2 3 4 5 6 7 8 9 10 ...
+##  $ Branch Code  : chr  "000" "001" "002" "003" ...
+##  $ Branch Name  : chr  "HEAD OFFICE" "DUTTAPULIA" "HANSKHALI" "MATIKUMRA" ...
+##  $ District Name: chr  "NORTH 24 PARGANAS" "NADIA" "NADIA" "NADIA" ...
+##  $ State        : chr  "West Bengal" "West Bengal" "West Bengal" "West Bengal" ...
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{colnames}\NormalTok{(branch)=}\KeywordTok{tolower}\NormalTok{(}\KeywordTok{make.names}\NormalTok{(}\KeywordTok{colnames}\NormalTok{(branch)))}
+\KeywordTok{names}\NormalTok{(branch)[}\DecValTok{4}\NormalTok{] <-}\StringTok{ "district"}
+\KeywordTok{unique}\NormalTok{(demographic}\OperatorTok{$}\NormalTok{district)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   [1] "North Twenty Four Parganas" "South Twenty Four Parganas"
+##   [3] "Barddhaman"                 "Murshidabad"               
+##   [5] "Paschim Medinipur"          "Hugli"                     
+##   [7] "Nadia"                      "Purba Medinipur"           
+##   [9] "Haora"                      "Kolkata"                   
+##  [11] "Maldah"                     "Jalpaiguri"                
+##  [13] "Bankura"                    "Birbhum"                   
+##  [15] "Uttar Dinajpur"             "Puruliya"                  
+##  [17] "Koch Bihar"                 "Darjiling"                 
+##  [19] "Dakshin Dinajpur"           "Ranchi"                    
+##  [21] "Dhanbad"                    "Giridih"                   
+##  [23] "Purbi Singhbhum"            "Bokaro"                    
+##  [25] "Palamu"                     "Hazaribagh"                
+##  [27] "Pashchimi Singhbhum"        "Deoghar"                   
+##  [29] "Garhwa"                     "Dumka"                     
+##  [31] "Godda"                      "Sahibganj"                 
+##  [33] "Saraikela Kharsawan"        "Chatra"                    
+##  [35] "Gumla"                      "Ramgarh"                   
+##  [37] "Pakur"                      "Jamtara"                   
+##  [39] "Latehar"                    "Kodarma"                   
+##  [41] "Simdega"                    "Khunti"                    
+##  [43] "Lohardaga"                  "Ganjam"                    
+##  [45] "Cuttack"                    "Mayurbhanj"                
+##  [47] "Baleshwar"                  "Khordha"                   
+##  [49] "Sundargarh"                 "Jajapur"                   
+##  [51] "Kendujhar"                  "Puri"                      
+##  [53] "Balangir"                   "Kalahandi"                 
+##  [55] "Bhadrak"                    "Bargarh"                   
+##  [57] "Kendrapara"                 "Koraput"                   
+##  [59] "Anugul"                     "Nabarangapur"              
+##  [61] "Dhenkanal"                  "Jagatsinghapur"            
+##  [63] "Sambalpur"                  "Rayagada"                  
+##  [65] "Nayagarh"                   "Kandhamal"                 
+##  [67] "Malkangiri"                 "Nuapada"                   
+##  [69] "Subarnapur"                 "Jharsuguda"                
+##  [71] "Gajapati"                   "Baudh"                     
+##  [73] "Debagarh"                   "Araria"                    
+##  [75] "Arwal"                      "Aurangabad"                
+##  [77] "Banka"                      "Begusarai"                 
+##  [79] "Bhagalpur"                  "Bhojpur"                   
+##  [81] "Buxar"                      "Darbhanga"                 
+##  [83] "Gaya"                       "Gopalganj"                 
+##  [85] "Jamui"                      "Jehanabad"                 
+##  [87] "Kaimur"                     "Katihar"                   
+##  [89] "Khagaria"                   "Kishanganj"                
+##  [91] "Lakhisarai"                 "Madhepura"                 
+##  [93] "Madhubani"                  "Munger"                    
+##  [95] "Muzaffarpur"                "Nalanda"                   
+##  [97] "Nawada"                     "Pashchim Champaran"        
+##  [99] "Patna"                      "Purbi Champaran"           
+## [101] "Purnia"                     "Rohtas"                    
+## [103] "Saharsa"                    "Samastipur"                
+## [105] "Saran"                      "Sheikhpura"                
+## [107] "Sheohar"                    "Sitamarhi"                 
+## [109] "Siwan"                      "Supaul"                    
+## [111] "Vaishali"                   "Nagaon"                    
+## [113] "Dhubri"                     "Sonitpur"                  
+## [115] "Cachar"                     "Barpeta"                   
+## [117] "Kamrup"                     "Tinsukia"                  
+## [119] "Dibrugarh"                  "Kamrup Metropolitan"       
+## [121] "Karimganj"                  "Sivasagar"                 
+## [123] "Jorhat"                     "Golaghat"                  
+## [125] "Lakhimpur"                  "Goalpara"                  
+## [127] "Morigaon"                   "Karbi Anglong"             
+## [129] "Baksa"                      "Darrang"                   
+## [131] "Kokrajhar"                  "Udalguri"                  
+## [133] "Nalbari"                    "Bongaigaon"                
+## [135] "Dhemaji"                    "Hailakandi"                
+## [137] "Chirang"                    "Dima Hasao"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{unique}\NormalTok{(branch}\OperatorTok{$}\NormalTok{district)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "NORTH 24 PARGANAS" "NADIA"             "NORTH DINAJPUR"   
+##  [4] "MURSHIDABAD"       "SOUTH DINAJPUR"    "KISHANGANJ"       
+##  [7] "PURNIA"            "PURI"              "ARARIA"           
+## [10] "JAMTARA"           "CUTTACK"           "SOUTH 24 PARGANAS"
+## [13] "KATIHAR"           "BHADRAK"           "DHANBAD"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{demographic}\OperatorTok{$}\NormalTok{district <-}\StringTok{ }\KeywordTok{toupper}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ demographic}\OperatorTok{$}\NormalTok{district)}
+\NormalTok{demographic}\OperatorTok{$}\NormalTok{district <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(demographic}\OperatorTok{$}\NormalTok{district }\OperatorTok{==}\StringTok{ "NORTH TWENTY FOUR PARGANAS"}\NormalTok{,}\StringTok{"NORTH 24 PARGANAS"}\NormalTok{,demographic}\OperatorTok{$}\NormalTok{district)}
+\NormalTok{demographic}\OperatorTok{$}\NormalTok{district <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(demographic}\OperatorTok{$}\NormalTok{district }\OperatorTok{==}\StringTok{ "SOUTH TWENTY FOUR PARGANAS"}\NormalTok{,}\StringTok{"SOUTH 24 PARGANAS"}\NormalTok{,demographic}\OperatorTok{$}\NormalTok{district)}
+
+\CommentTok{#Merging to data frames}
+\NormalTok{d1 <-}\StringTok{ }\KeywordTok{left_join}\NormalTok{(branch,demographic, }\DataTypeTok{by =} \StringTok{"district"}\NormalTok{)}
+
+\CommentTok{#Imputing missing values}
+
+\KeywordTok{summary}\NormalTok{(d1)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##      sl.no.     branch.code        branch.name          district        
+##  Min.   : 1.0   Length:59          Length:59          Length:59         
+##  1st Qu.:15.5   Class :character   Class :character   Class :character  
+##  Median :30.0   Mode  :character   Mode  :character   Mode  :character  
+##  Mean   :30.0                                                           
+##  3rd Qu.:44.5                                                           
+##  Max.   :59.0                                                           
+##                                                                         
+##    state.x            population          increase       sex.ratio    
+##  Length:59          Min.   :  791042   Min.   :11.99   Min.   :909.0  
+##  Class :character   1st Qu.: 1698730   1st Qu.:12.22   1st Qu.:947.0  
+##  Mode  :character   Median : 5167600   Median :13.05   Median :950.0  
+##                     Mean   : 4602471   Mean   :18.84   Mean   :947.6  
+##                     3rd Qu.: 7103807   3rd Qu.:28.33   3rd Qu.:956.0  
+##                     Max.   :10009781   Max.   :30.40   Max.   :981.0  
+##                     NA's   :6          NA's   :6       NA's   :6      
+##     literacy        density       state.y         
+##  Min.   :51.08   Min.   : 437   Length:59         
+##  1st Qu.:55.46   1st Qu.: 897   Class :character  
+##  Median :74.97   Median :1316   Mode  :character  
+##  Mean   :69.71   Mean   :1203                     
+##  3rd Qu.:77.51   3rd Qu.:1316                     
+##  Max.   :85.50   Max.   :2445                     
+##  NA's   :6       NA's   :6
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ControlFlowTok{for}\NormalTok{(i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\KeywordTok{ncol}\NormalTok{(d1))\{}
+    \ControlFlowTok{if}\NormalTok{ (}\KeywordTok{is.numeric}\NormalTok{(d1[,i]) }\OperatorTok{==}\StringTok{ }\OtherTok{TRUE}\NormalTok{)\{}
+\NormalTok{      d1[}\KeywordTok{is.na}\NormalTok{(d1[,i]),i] <-}\StringTok{ }\KeywordTok{median}\NormalTok{(d1[,i], }\DataTypeTok{na.rm =} \OtherTok{TRUE}\NormalTok{)}
+\NormalTok{    \}}
+\NormalTok{  \}}
+
+\NormalTok{datafinal <-}\StringTok{ }\NormalTok{d1[}\OperatorTok{-}\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{),}\OperatorTok{-}\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{11}\NormalTok{)]}
+\KeywordTok{str}\NormalTok{(datafinal)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 'data.frame':    58 obs. of  9 variables:
+##  $ branch.code: chr  "001" "002" "003" "004" ...
+##  $ branch.name: chr  "DUTTAPULIA" "HANSKHALI" "MATIKUMRA" "LAUHATI" ...
+##  $ district   : chr  "NADIA" "NADIA" "NADIA" "NORTH 24 PARGANAS" ...
+##  $ state.x    : chr  "West Bengal" "West Bengal" "West Bengal" "West Bengal" ...
+##  $ population : num  5167600 5167600 5167600 10009781 5167600 ...
+##  $ increase   : num  12.2 12.2 12.2 12 13.1 ...
+##  $ sex.ratio  : num  947 947 947 955 950 947 947 958 958 955 ...
+##  $ literacy   : num  75 75 75 84.1 75 ...
+##  $ density    : num  1316 1316 1316 2445 1316 ...
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{names}\NormalTok{(datafinal)[}\DecValTok{2}\NormalTok{] <-}\StringTok{ "branch"} 
+\KeywordTok{names}\NormalTok{(datafinal)[}\DecValTok{4}\NormalTok{] <-}\StringTok{ "state"}
+\KeywordTok{head}\NormalTok{(datafinal)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   branch.code     branch          district       state population increase
+## 2         001 DUTTAPULIA             NADIA West Bengal    5167600    12.22
+## 3         002  HANSKHALI             NADIA West Bengal    5167600    12.22
+## 4         003  MATIKUMRA             NADIA West Bengal    5167600    12.22
+## 5         004    LAUHATI NORTH 24 PARGANAS West Bengal   10009781    12.04
+## 6         005  KARNAJORA    NORTH DINAJPUR West Bengal    5167600    13.05
+## 7         006  ARANGHATA             NADIA West Bengal    5167600    12.22
+##   sex.ratio literacy density
+## 2       947    74.97    1316
+## 3       947    74.97    1316
+## 4       947    74.97    1316
+## 5       955    84.06    2445
+## 6       950    74.97    1316
+## 7       947    74.97    1316
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#Combining demographic data and Branch level profit data}
+
+\NormalTok{finaldata <-}\StringTok{ }\NormalTok{datafinal }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{left_join}\NormalTok{(branch_pl, }\DataTypeTok{by =} \StringTok{"branch"}\NormalTok{)}\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{left_join}\NormalTok{(unemp,}\DataTypeTok{by =} \StringTok{"state"}\NormalTok{)}\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{left_join}\NormalTok{(mfigrowth,}\DataTypeTok{by =} \StringTok{"state"}\NormalTok{)}\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{left_join}\NormalTok{(gsdp,}\DataTypeTok{by =} \StringTok{"state"}\NormalTok{)}
+
+\KeywordTok{head}\NormalTok{(finaldata)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   branch.code     branch          district       state population increase
+## 1         001 DUTTAPULIA             NADIA West Bengal    5167600    12.22
+## 2         002  HANSKHALI             NADIA West Bengal    5167600    12.22
+## 3         003  MATIKUMRA             NADIA West Bengal    5167600    12.22
+## 4         004    LAUHATI NORTH 24 PARGANAS West Bengal   10009781    12.04
+## 5         005  KARNAJORA    NORTH DINAJPUR West Bengal    5167600    13.05
+## 6         006  ARANGHATA             NADIA West Bengal    5167600    12.22
+##   sex.ratio literacy density branchcode total.income expenditure
+## 1       947    74.97    1316        001      4907966     4649638
+## 2       947    74.97    1316        002      5151095     4370939
+## 3       947    74.97    1316        003      5162574     2039140
+## 4       955    84.06    2445        004      6161808     4438315
+## 5       950    74.97    1316        005      6351215     5342270
+## 6       947    74.97    1316        006      5641977     4542549
+##   finalvalue result rate count.shg saving.amount.lakh.rs percapita16-17
+## 1   258328.5 Profit  6.8    760941                127348          91114
+## 2   780156.6 Profit  6.8    760941                127348          91114
+## 3  3123434.1 Profit  6.8    760941                127348          91114
+## 4  1723492.9 Profit  6.8    760941                127348          91114
+## 5  1008944.6 Profit  6.8    760941                127348          91114
+## 6  1099427.5 Profit  6.8    760941                127348          91114
+##   billion.percapita
+## 1              1333
+## 2              1333
+## 3              1333
+## 4              1333
+## 5              1333
+## 6              1333
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{finaldata <-}\StringTok{ }\NormalTok{finaldata[,}\OperatorTok{-}\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{10}\NormalTok{)]}
+\KeywordTok{str}\NormalTok{(finaldata)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 'data.frame':    58 obs. of  17 variables:
+##  $ branch               : chr  "DUTTAPULIA" "HANSKHALI" "MATIKUMRA" "LAUHATI" ...
+##  $ district             : chr  "NADIA" "NADIA" "NADIA" "NORTH 24 PARGANAS" ...
+##  $ state                : chr  "West Bengal" "West Bengal" "West Bengal" "West Bengal" ...
+##  $ population           : num  5167600 5167600 5167600 10009781 5167600 ...
+##  $ increase             : num  12.2 12.2 12.2 12 13.1 ...
+##  $ sex.ratio            : num  947 947 947 955 950 947 947 958 958 955 ...
+##  $ literacy             : num  75 75 75 84.1 75 ...
+##  $ density              : num  1316 1316 1316 2445 1316 ...
+##  $ total.income         : num  4907966 5151095 5162574 6161808 6351215 ...
+##  $ expenditure          : num  4649638 4370939 2039140 4438315 5342270 ...
+##  $ finalvalue           : num  258328 780157 3123434 1723493 1008945 ...
+##  $ result               : chr  "Profit" "Profit" "Profit" "Profit" ...
+##  $ rate                 : num  6.8 6.8 6.8 6.8 6.8 6.8 6.8 6.8 6.8 6.8 ...
+##  $ count.shg            : num  760941 760941 760941 760941 760941 ...
+##  $ saving.amount.lakh.rs: num  127348 127348 127348 127348 127348 ...
+##  $ percapita16-17       : num  91114 91114 91114 91114 91114 ...
+##  $ billion.percapita    : num  1333 1333 1333 1333 1333 ...
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#Original copy of final data}
+\NormalTok{original <-}\StringTok{ }\NormalTok{finaldata}
+
+\CommentTok{#Imputing missing data for branches not mentioned in previous list}
+\NormalTok{finaldata[}\KeywordTok{sapply}\NormalTok{(finaldata, is.numeric)] <-}\StringTok{ }\KeywordTok{lapply}\NormalTok{(finaldata[}\KeywordTok{sapply}\NormalTok{(finaldata, is.numeric)], }\ControlFlowTok{function}\NormalTok{(x) }\KeywordTok{ifelse}\NormalTok{(}\KeywordTok{is.na}\NormalTok{(x), }\KeywordTok{median}\NormalTok{(x, }\DataTypeTok{na.rm =} \OtherTok{TRUE}\NormalTok{), x))}
+\NormalTok{finaldata}\OperatorTok{$}\NormalTok{result <-}\StringTok{ }\KeywordTok{as.factor}\NormalTok{(}\KeywordTok{ifelse}\NormalTok{(finaldata}\OperatorTok{$}\NormalTok{finalvalue }\OperatorTok{>}\StringTok{ }\DecValTok{0}\NormalTok{,}\StringTok{"Profit"}\NormalTok{,}\StringTok{"Loss"}\NormalTok{))}
+\NormalTok{finaldata <-}\StringTok{ }\NormalTok{finaldata}\OperatorTok{%>%}\StringTok{ }\KeywordTok{select}\NormalTok{(}\OperatorTok{-}\NormalTok{result,result) }\CommentTok{#Moving Result column to the end !}
+\KeywordTok{write.csv}\NormalTok{(finaldata, }\DataTypeTok{file =} \StringTok{"Finaldataforanalysis1.csv"}\NormalTok{) }
+
+
+\CommentTok{#Correlation Plot to check multicollinearity}
+\NormalTok{finaldata <-}\StringTok{ }\NormalTok{finaldata}
+\NormalTok{corrplot}\OperatorTok{::}\KeywordTok{corrplot}\NormalTok{(}\KeywordTok{cor}\NormalTok{(finaldata[,}\KeywordTok{unlist}\NormalTok{(}\KeywordTok{lapply}\NormalTok{(finaldata, is.numeric))]),}\DataTypeTok{method =} \StringTok{"number"}\NormalTok{,}
+                   \DataTypeTok{diag =} \OtherTok{TRUE}\NormalTok{,}\DataTypeTok{title =} \StringTok{"Corelation Plot"}\NormalTok{,}\DataTypeTok{order =} \StringTok{"AOE"}\NormalTok{,}\DataTypeTok{tl.cex =} \FloatTok{0.8}\NormalTok{,}\DataTypeTok{number.cex =} \FloatTok{0.6}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{DataCleaning_and_Merging_files/figure-latex/unnamed-chunk-1-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#Building the models}
+
+\NormalTok{m1 =}\StringTok{ }\KeywordTok{glm}\NormalTok{(result}\OperatorTok{~}\StringTok{ }\NormalTok{density}\OperatorTok{+}\NormalTok{sex.ratio}\OperatorTok{+}\NormalTok{literacy,}\DataTypeTok{family=}\KeywordTok{binomial}\NormalTok{(}\DataTypeTok{link =} \StringTok{"logit"}\NormalTok{), }\DataTypeTok{data =}\NormalTok{ finaldata)}
+\NormalTok{m2 =}\StringTok{ }\KeywordTok{glm}\NormalTok{(result}\OperatorTok{~}\StringTok{ }\NormalTok{density}\OperatorTok{+}\NormalTok{sex.ratio}\OperatorTok{+}\NormalTok{literacy}\OperatorTok{+}\NormalTok{rate,}\DataTypeTok{family=}\KeywordTok{binomial}\NormalTok{(}\DataTypeTok{link =} \StringTok{"logit"}\NormalTok{), }\DataTypeTok{data =}\NormalTok{ finaldata)}
+\NormalTok{m3 =}\StringTok{ }\KeywordTok{glm}\NormalTok{(result}\OperatorTok{~}\StringTok{ }\NormalTok{(density}\OperatorTok{*}\NormalTok{rate)}\OperatorTok{+}\NormalTok{sex.ratio}\OperatorTok{+}\NormalTok{literacy,}\DataTypeTok{family=}\KeywordTok{binomial}\NormalTok{(}\DataTypeTok{link =} \StringTok{"logit"}\NormalTok{), }\DataTypeTok{data =}\NormalTok{ finaldata)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{m4 =}\StringTok{ }\KeywordTok{glm}\NormalTok{(result}\OperatorTok{~}\StringTok{ }\NormalTok{density}\OperatorTok{+}\NormalTok{sex.ratio}\OperatorTok{+}\NormalTok{literacy}\OperatorTok{+}\NormalTok{count.shg,}\DataTypeTok{family=}\KeywordTok{binomial}\NormalTok{(}\DataTypeTok{link =} \StringTok{"logit"}\NormalTok{), }\DataTypeTok{data =}\NormalTok{ finaldata)}
+\NormalTok{m5 =}\StringTok{ }\KeywordTok{glm}\NormalTok{(result}\OperatorTok{~}\StringTok{ }\NormalTok{density}\OperatorTok{+}\NormalTok{sex.ratio}\OperatorTok{+}\NormalTok{literacy}\OperatorTok{+}\NormalTok{rate}\OperatorTok{+}\NormalTok{count.shg,}\DataTypeTok{family=}\KeywordTok{binomial}\NormalTok{(}\DataTypeTok{link =} \StringTok{"logit"}\NormalTok{), }\DataTypeTok{data =}\NormalTok{ finaldata)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(stargazer)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Please cite as:
+\end{verbatim}
+
+\begin{verbatim}
+##  Hlavac, Marek (2018). stargazer: Well-Formatted Regression and Summary Statistics Tables.
+\end{verbatim}
+
+\begin{verbatim}
+##  R package version 5.2.2. https://CRAN.R-project.org/package=stargazer
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{stargazer}\NormalTok{(m1,m2,m3,m4,m5,}\DataTypeTok{type =} \StringTok{"text"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## =======================================================================
+##                                    Dependent variable:                 
+##                   -----------------------------------------------------
+##                                          result                        
+##                      (1)        (2)        (3)        (4)        (5)   
+## -----------------------------------------------------------------------
+## density            0.008***   0.008***   -0.025     0.013**     0.040  
+##                    (0.002)    (0.002)    (0.029)    (0.005)    (0.043) 
+##                                                                        
+## sex.ratio          0.078**    0.097**     0.242     0.126**     0.211  
+##                    (0.033)    (0.042)    (0.165)    (0.051)    (0.175) 
+##                                                                        
+## literacy            -0.006     0.023     -0.389      0.072     -0.064  
+##                    (0.046)    (0.058)    (0.472)    (0.105)    (0.247) 
+##                                                                        
+## density:rate                              0.006                        
+##                                          (0.006)                       
+##                                                                        
+## rate                           0.282     -6.571                -3.170  
+##                               (0.328)    (6.486)               (4.496) 
+##                                                                        
+## count.shg                                          -0.00001   -0.00004 
+##                                                    (0.00001)  (0.0001) 
+##                                                                        
+## Constant          -80.619*** -102.960** -177.303* -133.487*** -191.484 
+##                    (30.417)   (42.995)  (100.903)  (50.856)   (139.354)
+##                                                                        
+## -----------------------------------------------------------------------
+## Observations          58         58        58         58         58    
+## Log Likelihood     -18.384    -18.027    -15.955    -16.843    -16.162 
+## Akaike Inf. Crit.   44.769     46.055    43.910     43.687     44.323  
+## =======================================================================
+## Note:                                       *p<0.1; **p<0.05; ***p<0.01
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#Creating Test Data Set}
+
+\NormalTok{test_data <-}\StringTok{ }\KeywordTok{subset}\NormalTok{(demographic, district }\OperatorTok{%in%}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"BHAGALPUR"}\NormalTok{,}\StringTok{"SAHARSA"}\NormalTok{,}\StringTok{"KHAGARIA"}\NormalTok{,}\StringTok{"BADARPUR"}\NormalTok{,}\StringTok{"KARIMGANJ"}\NormalTok{,}\StringTok{"CACHAR"}\NormalTok{)) }\CommentTok{#to be extracted from demographic file as the branch is not present in Finaldata}
+\NormalTok{test_data <-}\StringTok{ }\NormalTok{test_data }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{left_join}\NormalTok{(unemp, }\DataTypeTok{by =}\StringTok{"state"}\NormalTok{)}\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{left_join}\NormalTok{(gsdp, }\DataTypeTok{by =} \StringTok{"state"}\NormalTok{)}\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{left_join}\NormalTok{(mfigrowth, }\DataTypeTok{by=}\StringTok{"state"}\NormalTok{)}
+
+
+\CommentTok{#m1 Predict}
+
+\NormalTok{m1.predictedvalues <-}\StringTok{ }\KeywordTok{as.factor}\NormalTok{(}\KeywordTok{if_else}\NormalTok{(}\KeywordTok{fitted.values}\NormalTok{(m1) }\OperatorTok{>}\FloatTok{0.5}\NormalTok{,}\StringTok{"Profit"}\NormalTok{,}\StringTok{"Loss"}\NormalTok{))}
+\KeywordTok{confusionMatrix}\NormalTok{(m1.predictedvalues,finaldata}\OperatorTok{$}\NormalTok{result)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction Loss Profit
+##     Loss     19      7
+##     Profit    2     30
+##                                           
+##                Accuracy : 0.8448          
+##                  95% CI : (0.7258, 0.9265)
+##     No Information Rate : 0.6379          
+##     P-Value [Acc > NIR] : 0.0004424       
+##                                           
+##                   Kappa : 0.6805          
+##  Mcnemar's Test P-Value : 0.1824224       
+##                                           
+##             Sensitivity : 0.9048          
+##             Specificity : 0.8108          
+##          Pos Pred Value : 0.7308          
+##          Neg Pred Value : 0.9375          
+##              Prevalence : 0.3621          
+##          Detection Rate : 0.3276          
+##    Detection Prevalence : 0.4483          
+##       Balanced Accuracy : 0.8578          
+##                                           
+##        'Positive' Class : Loss            
+## 
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{m1.predict <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(m1,test_data,}\DataTypeTok{type =} \StringTok{"response"}\NormalTok{);m1.predict}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##          1          2          3          4          5 
+## 0.02712272 0.02840296 0.12903717 0.04962254 0.27246825
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{m1.predict <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(m1.predict }\OperatorTok{>}\FloatTok{0.5}\NormalTok{,}\StringTok{"Profit"}\NormalTok{,}\StringTok{"Loss"}\NormalTok{);m1.predict}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##      1      2      3      4      5 
+## "Loss" "Loss" "Loss" "Loss" "Loss"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#m2 Predict}
+
+\NormalTok{m2.predictedvalues <-}\StringTok{ }\KeywordTok{as.factor}\NormalTok{(}\KeywordTok{if_else}\NormalTok{(}\KeywordTok{fitted.values}\NormalTok{(m2) }\OperatorTok{>}\FloatTok{0.5}\NormalTok{,}\StringTok{"Profit"}\NormalTok{,}\StringTok{"Loss"}\NormalTok{))}
+\KeywordTok{confusionMatrix}\NormalTok{(m2.predictedvalues,finaldata}\OperatorTok{$}\NormalTok{result)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction Loss Profit
+##     Loss     19      6
+##     Profit    2     31
+##                                           
+##                Accuracy : 0.8621          
+##                  95% CI : (0.7462, 0.9385)
+##     No Information Rate : 0.6379          
+##     P-Value [Acc > NIR] : 0.0001331       
+##                                           
+##                   Kappa : 0.7132          
+##  Mcnemar's Test P-Value : 0.2888444       
+##                                           
+##             Sensitivity : 0.9048          
+##             Specificity : 0.8378          
+##          Pos Pred Value : 0.7600          
+##          Neg Pred Value : 0.9394          
+##              Prevalence : 0.3621          
+##          Detection Rate : 0.3276          
+##    Detection Prevalence : 0.4310          
+##       Balanced Accuracy : 0.8713          
+##                                           
+##        'Positive' Class : Loss            
+## 
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{m2.predict <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(m2,test_data,}\DataTypeTok{type =} \StringTok{"response"}\NormalTok{);m2.predict}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##          1          2          3          4          5 
+## 0.01240138 0.01229439 0.07430604 0.03492351 0.22473754
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{m2.predict <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(m2.predict }\OperatorTok{>}\FloatTok{0.5}\NormalTok{,}\StringTok{"Profit"}\NormalTok{,}\StringTok{"Loss"}\NormalTok{);m2.predict}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##      1      2      3      4      5 
+## "Loss" "Loss" "Loss" "Loss" "Loss"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#m4 Predict}
+
+\NormalTok{m4.predictedvalues <-}\StringTok{ }\KeywordTok{as.factor}\NormalTok{(}\KeywordTok{if_else}\NormalTok{(}\KeywordTok{fitted.values}\NormalTok{(m4) }\OperatorTok{>}\FloatTok{0.5}\NormalTok{,}\StringTok{"Profit"}\NormalTok{,}\StringTok{"Loss"}\NormalTok{))}
+\KeywordTok{confusionMatrix}\NormalTok{(m4.predictedvalues,finaldata}\OperatorTok{$}\NormalTok{result)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction Loss Profit
+##     Loss     15      1
+##     Profit    6     36
+##                                          
+##                Accuracy : 0.8793         
+##                  95% CI : (0.767, 0.9501)
+##     No Information Rate : 0.6379         
+##     P-Value [Acc > NIR] : 3.506e-05      
+##                                          
+##                   Kappa : 0.7246         
+##  Mcnemar's Test P-Value : 0.1306         
+##                                          
+##             Sensitivity : 0.7143         
+##             Specificity : 0.9730         
+##          Pos Pred Value : 0.9375         
+##          Neg Pred Value : 0.8571         
+##              Prevalence : 0.3621         
+##          Detection Rate : 0.2586         
+##    Detection Prevalence : 0.2759         
+##       Balanced Accuracy : 0.8436         
+##                                          
+##        'Positive' Class : Loss           
+## 
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{m4.predict <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(m4,test_data,}\DataTypeTok{type =} \StringTok{"response"}\NormalTok{);m4.predict}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##           1           2           3           4           5 
+## 0.014001881 0.009260216 0.081254848 0.034000209 0.502052383
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{m4.predict <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(m4.predict }\OperatorTok{>}\FloatTok{0.5}\NormalTok{,}\StringTok{"Profit"}\NormalTok{,}\StringTok{"Loss"}\NormalTok{);m4.predict}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##        1        2        3        4        5 
+##   "Loss"   "Loss"   "Loss"   "Loss" "Profit"
+\end{verbatim}
+
+
+\end{document}
