@@ -106,7 +106,7 @@ original <- finaldata
 finaldata[sapply(finaldata, is.numeric)] <- lapply(finaldata[sapply(finaldata, is.numeric)], function(x) ifelse(is.na(x), median(x, na.rm = TRUE), x))
 finaldata$result <- as.factor(ifelse(finaldata$finalvalue > 0,"Profit","Loss"))
 finaldata <- finaldata%>% select(-result,result) #Moving Result column to the end !
-write.csv(finaldata, file = "Finaldataforanalysis1.csv") 
+#write.csv(finaldata, file = "Finaldataforanalysis1.csv") 
 
 
 #Correlation Plot to check multicollinearity
@@ -121,10 +121,12 @@ m2 = glm(result~ density+sex.ratio+literacy+rate,family=binomial(link = "logit")
 m3 = glm(result~ (density*rate)+sex.ratio+literacy,family=binomial(link = "logit"), data = finaldata)
 m4 = glm(result~ density+sex.ratio+literacy+count.shg,family=binomial(link = "logit"), data = finaldata)
 m5 = glm(result~ density+sex.ratio+literacy+rate+count.shg,family=binomial(link = "logit"), data = finaldata)
-summary(m5)
+m6 = glm(result~ density+sex.ratio+rate,family=binomial(link = "logit"), data = finaldata)
+
+summary(m6)
 
 library(stargazer)
-stargazer(m1,m2,m3,m4,m5,type = "text")
+stargazer(m1,m2,m3,m4,m5,m6,type = "text")
 
 
 #Creating Test Data Set
@@ -160,4 +162,12 @@ confusionMatrix(m4.predictedvalues,finaldata$result)
 
 m4.predict <- predict(m4,test_data,type = "response");m4.predict
 m4.predict <- ifelse(m4.predict >0.5,"Profit","Loss");m4.predict
+
+#m6 Predict
+
+m6.predictedvalues <- as.factor(if_else(fitted.values(m6) >0.5,"Profit","Loss"))
+confusionMatrix(m6.predictedvalues,finaldata$result)
+
+m6.predict <- predict(m6,test_data,type = "response");m6.predict
+m6.predict <- ifelse(m6.predict >0.5,"Profit","Loss");m6.predict
 
