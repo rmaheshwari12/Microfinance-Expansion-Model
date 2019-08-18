@@ -171,3 +171,25 @@ confusionMatrix(m6.predictedvalues,finaldata$result)
 m6.predict <- predict(m6,test_data,type = "response");m6.predict
 m6.predict <- ifelse(m6.predict >0.5,"Profit","Loss");m6.predict
 
+#Result Plots
+
+#Average Profit per State
+profit.state = finaldata %>%
+  group_by(state)%>%
+  summary(finalvalue)
+ 
+
+#aggregate(finaldata$finalvalue, list(finaldata$state), mean)
+plot(finaldata$finalvalue,finaldata$total.income,col=c("Blue","Red")[finaldata$result],pch = 20, main = "Branch Wise Profitability Quadrant", xlab = "Net Income", ylab = "Total Income")
+abline(a=0,b=4000000,h = 4000000)
+
+library(ggplot2)
+
+ggplot(finaldata, aes(factor(state), finalvalue, fill = result),) + 
+  geom_bar(stat="identity", position = "dodge") + 
+  scale_fill_brewer(palette = "Set1")
+
+
+
+plot(finaldata$finalvalue, col=c("Blue","Red")[finaldata$result], pch = 20)
+plot(finaldata$finalvalue, by)
