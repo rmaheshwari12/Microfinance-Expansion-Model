@@ -203,27 +203,27 @@ plot(finaldata$finalvalue,finaldata$total.income,col =  as.numeric(factor(finald
   scatterplot(data = finaldata, finalvalue ~ total.income,pch = 20, main = "Branch Wise Profitability Quadrant", xlab = "Net Income", ylab = "Total Income")
 
 
-
+#Computing State Wise Profit-Loss
 aggprofit <- (finaldata %>% group_by(result,state) %>% summarise(aggPL = mean(finalvalue)))
-
-ggplot(aggprofit,aes(factor(state),aggPL ,fill = result)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  scale_fill_brewer(palette = "Set1")+ ggtitle("Average State-wise Profitability") + ylab("Average Net Income (INR)") + xlab("States") + geom_text(aes(label = round(aggPL,digits = 0)),cex= 2.5, position = "nudge")
+aggprofit1 <- (finaldata %>% group_by(state) %>% summarise(aggPL = mean(finalvalue)))
 
 library(ggplot2)
 
-ggplot(finaldata, aes(factor(state), finalvalue, fill = result)) +
-  geom_bar(stat="identity", position = "dodge") +
-  scale_fill_brewer(palette = "Set1")
 
-ggplot(finaldata, aes(factor(state), (mean(finalvalue)), fill = result)) +
-  geom_bar(stat="identity", position = "dodge") +
-  scale_fill_brewer(palette = "Set1")
+#Average State wise Profitability
+ggplot(aggprofit1,aes(factor(state),aggPL)) +
+  geom_bar(stat = "identity", position = "dodge", fill = 'steelblue') +
+  scale_fill_brewer(palette = "Paired")+ ggtitle("State-wise Average Profitability") + ylab("Average Net Income (INR)") + xlab("States") + 
+  geom_text(aes(label = round(aggPL,digits = 0)),cex = 3.5, vjust = -0.2)+
+  theme_minimal()
 
+#State Wise Average Profit and Loss
+ggplot(aggprofit,aes(factor(state),aggPL, fill = result)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_fill_brewer(palette = "Paired")+ ggtitle("State-wise Average Profit - Loss") + ylab("Average Net Income (INR)") + xlab("States") + 
+  geom_text(aes(label = round(aggPL,digits = 0)),cex = 3.5, vjust = -0.3, position =  'nudge')+
+  theme_minimal()
 
-
-plot(finaldata$finalvalue, col=c("Blue","Red")[finaldata$result], pch = 20)
-plot(finaldata$finalvalue, by)
 
 install.packages("plotly")
 library(plotly)
