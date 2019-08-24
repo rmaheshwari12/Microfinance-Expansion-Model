@@ -119,8 +119,8 @@ corrplot::corrplot(cor(finaldata[,unlist(lapply(finaldata, is.numeric))]),method
 
 m1 = glm(result~ density+sex.ratio+literacy,family=binomial(link = "logit"), data = finaldata)
 m2 = glm(result~ density+sex.ratio+literacy+count.shg,family=binomial(link = "logit"), data = finaldata)
-m3 = glm(result~ density+sex.ratio+rate,family=binomial(link = "logit"), data = finaldata)
 
+m3 = glm(result~ density+sex.ratio+rate,family=binomial(link = "logit"), data = finaldata)
 
 summary(m3)
 
@@ -162,21 +162,27 @@ finaldata$modelresult <- as.factor(if_else(fitted.values(m3) >0.5,"Profit","Loss
 confusionMatrix(m3.predictedvalues,finaldata$result)
 summary(finaldata$result)
 
+p <- predict(m3,finaldata,type = "response")
+
+
 
 m3.predict <- predict(m3,test_data,type = "response");m3.predict
-m3.predict <- ifelse(m3.predict >0.5,"Profit","Loss");m3.predict
+m3.predictvalues <- ifelse(m3.predict >0.5,"Profit","Loss");m3.predictvalues
+test_data$modelresult = as.factor(if_else(m3.predict > 0.5,"Profit","Loss"));test_data
+test_data[,c(1,13)]
 
-finaldata[,c(1,17:18)]
+
 finaldata$truevalue <- 0
 finaldata$truevalue <- if_else((finaldata$result == finaldata$modelresult),'True','False')
+head(finaldata[,c(1,17:19)],n = 10)
 
 
 #Result Plots
 
-#Average Profit per State
-profit.state = finaldata %>%
-  group_by(state)%>%
-  summary(finalvalue)
+# #Average Profit per State
+# profit.state = finaldata %>%
+#   group_by(state)%>%
+#   summary(finalvalue)
 
 
 #aggregate(finaldata$finalvalue, list(finaldata$state), mean)
@@ -190,71 +196,82 @@ plot(finaldata$finalvalue,finaldata$total.income,col = as.numeric(factor(finalda
 legend(x="bottomright", legend=unique(finaldata$state), col=as.numeric(finaldata$state), pch=1)
 
 #Predicted Profitability Graph
-plot(finaldata$finalvalue,finaldata$total.income,col = as.numeric(factor(finaldata$state)),pch = c(1,20)[finaldata$modelresult], main = "Branch Wise Predicted Profitability Quadrant", xlab = "Net Income", ylab = "Total Income")
-legend(x="bottomright", legend=unique(finaldata$state), col=c('blue','black','green','red'), pch=19, cex = 0.8, bg = )
+# plot(finaldata$finalvalue,finaldata$total.income,col = as.numeric(factor(finaldata$state)),pch = c(1,20)[finaldata$modelresult], main = "Branch Wise Predicted Profitability Quadrant", xlab = "Net Income", ylab = "Total Income")
+# legend(x="bottomright", legend=unique(finaldata$state), col=c('blue','black','green','red'), pch=19, cex = 0.8, bg = )
+# 
+# 
+# plot(finaldata$finalvalue,finaldata$total.income,col = as.numeric(factor(finaldata$state)),pch = 19, main = "Branch Wise Profitability Quadrant", xlab = "Net Income", ylab = "Total Income")
+# legend(x="bottomright", legend=unique(finaldata$state), col=c('blue','black','green','red'), pch=19, cex = 0.8, bg = "transparent")
+# 
+# plot(finaldata$finalvalue,finaldata$total.income,col =  as.numeric(factor(finaldata$state))[finaldata$state)[finaldata$result],pch = c(1,3,15,20)[finaldata$state], main = "Branch Wise Profitability Quadrant", xlab = "Net Income", ylab = "Total Income")
+# 
+# 
+#   scatterplot(data = finaldata, finalvalue ~ total.income,pch = 20, main = "Branch Wise Profitability Quadrant", xlab = "Net Income", ylab = "Total Income")
+# 
+# 
+# #Computing State Wise Profit-Loss
+# aggprofit <- (finaldata %>% group_by(result,state) %>% summarise(aggPL = mean(finalvalue)))
+# aggprofit1 <- (finaldata %>% group_by(state) %>% summarise(aggPL = mean(finalvalue)))
+# 
+# library(ggplot2)
+# 
+# 
+# #Average State wise Profitability
+# ggplot(aggprofit1,aes(factor(state),aggPL)) +
+#   geom_bar(stat = "identity", position = "dodge", fill = 'steelblue') +
+#   scale_fill_brewer(palette = "Paired")+ ggtitle("State-wise Average Profitability") + ylab("Average Net Income (INR)") + xlab("States") +
+#   geom_text(aes(label = round(aggPL,digits = 0)),cex = 3.5, vjust = -0.2)+
+#   theme_minimal()
+# 
+# #State Wise Average Profit and Loss
+# ggplot(aggprofit,aes(factor(state),aggPL, fill = result)) +
+#   geom_bar(stat = "identity", position = "dodge") +
+#   scale_fill_brewer(palette = "Paired")+ ggtitle("State-wise Average Profit - Loss") + ylab("Average Net Income (INR)") + xlab("States") +
+#   geom_text(aes(label = round(aggPL,digits = 0)),cex = 3.5, vjust = -0.3, position =  'nudge')+
+#   theme_minimal()
+# 
+# 
+# install.packages("plotly")
+# library(plotly)
+# 
+# Sys.setenv("plotly_username"="rushikesh12")
+# Sys.setenv("plotly_api_key"="NlhrrEvudQc2O4W6sMyN")
+# 
+# #original Plot
+# #plot_ly(finaldata,x = ~total.income, y = ~expenditure , hovertext = ~branch, type = "scatter", mode = 'markers', size = ~finalvalue, color = ~result, colors = 'Paired', marker = list(opacity = 0.8, sizemode = 'area'))%>%
+# # layout(title = "Branch Profitability - Predicted", xaxis = list(showgrid = TRUE), yaxis = list(showgrid = TRUE), showlegend = TRUE)
+# 
+# p1 <-plot_ly(finaldata,x = ~total.income, y = ~expenditure , hoverinfo = 'text',
+#         text = ~paste('</br>Branch: ',branch,'</br>NetProfit: ', finalvalue),
+#         type = "scatter", mode = 'markers', size = ~finalvalue, color = ~result, colors = 'Paired',
+#         marker = list(opacity = 0.8, sizemode = 'area'))%>%
+#   layout(title = "Branch Profitability - Actual", xaxis = list(showgrid = TRUE, title = 'Total Income'),
+#          yaxis = list(showgrid = TRUE, title = 'Expenditure'), showlegend = TRUE)
+# 
+# api_create(p1, filename = "Branch Profitability - Actual")
+# 
+# 
+# p2 <- plot_ly(finaldata,x = ~total.income, y = ~expenditure , hoverinfo = 'text',
+#         text = ~paste('</br>Branch: ',branch,'</br>NetProfit: ', finalvalue),
+#         type = "scatter", mode = 'markers', size = ~finalvalue, color = ~modelresult, colors = 'Paired',
+#         marker = list(opacity = 0.8, sizemode = 'area'))%>%
+#   layout(title = "Branch Profitability - Predicted", xaxis = list(showgrid = TRUE, title = 'Total Income'),
+#          yaxis = list(showgrid = TRUE, title = 'Expenditure'), showlegend = TRUE)
+# 
+# api_create(p2, filename = "Branch Profitability - Predicted")
+# 
+# 
+# p3 <- plot_ly(finaldata,x = ~total.income, y = ~expenditure , hoverinfo = 'text',
+#         text = ~paste('</br>Branch: ',branch,'</br>Net Profit: ',finalvalue),
+#         type = "scatter", mode = 'markers', size = ~finalvalue, color = ~factor(truevalue), colors = 'RdYlGn',
+#         marker = list(opacity = 0.8, sizemode = 'area'))%>%
+#   layout(title = "Branch Profitability - Comparison", xaxis = list(showgrid = TRUE, title = 'Total Income'),
+#          yaxis = list(showgrid = TRUE, title = 'Expenditure'), showlegend = TRUE)
+# 
+# api_create(p3, filename = "Branch Profitability - Comparison")
+# 
+# #plot_ly (x =c(1,2, 3 ),y =c(5,6, 7 ),type = 'scatter',mode = 'markers',size =c(1,5,10),
+#  # marker = list(color =c('red','blue','green')))
+# 
 
-
-plot(finaldata$finalvalue,finaldata$total.income,col = as.numeric(factor(finaldata$state)),pch = 19, main = "Branch Wise Profitability Quadrant", xlab = "Net Income", ylab = "Total Income")
-legend(x="bottomright", legend=unique(finaldata$state), col=c('blue','black','green','red'), pch=19, cex = 0.8, bg = "transparent")
-
-plot(finaldata$finalvalue,finaldata$total.income,col =  as.numeric(factor(finaldata$state))[finaldata$state)[finaldata$result],pch = c(1,3,15,20)[finaldata$state], main = "Branch Wise Profitability Quadrant", xlab = "Net Income", ylab = "Total Income")
-
-
-  scatterplot(data = finaldata, finalvalue ~ total.income,pch = 20, main = "Branch Wise Profitability Quadrant", xlab = "Net Income", ylab = "Total Income")
-
-
-#Computing State Wise Profit-Loss
-aggprofit <- (finaldata %>% group_by(result,state) %>% summarise(aggPL = mean(finalvalue)))
-aggprofit1 <- (finaldata %>% group_by(state) %>% summarise(aggPL = mean(finalvalue)))
-
-library(ggplot2)
-
-
-#Average State wise Profitability
-ggplot(aggprofit1,aes(factor(state),aggPL)) +
-  geom_bar(stat = "identity", position = "dodge", fill = 'steelblue') +
-  scale_fill_brewer(palette = "Paired")+ ggtitle("State-wise Average Profitability") + ylab("Average Net Income (INR)") + xlab("States") + 
-  geom_text(aes(label = round(aggPL,digits = 0)),cex = 3.5, vjust = -0.2)+
-  theme_minimal()
-
-#State Wise Average Profit and Loss
-ggplot(aggprofit,aes(factor(state),aggPL, fill = result)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  scale_fill_brewer(palette = "Paired")+ ggtitle("State-wise Average Profit - Loss") + ylab("Average Net Income (INR)") + xlab("States") + 
-  geom_text(aes(label = round(aggPL,digits = 0)),cex = 3.5, vjust = -0.3, position =  'nudge')+
-  theme_minimal()
-
-
-install.packages("plotly")
-library(plotly)
-
-#original Plot
-#plot_ly(finaldata,x = ~total.income, y = ~expenditure , hovertext = ~branch, type = "scatter", mode = 'markers', size = ~finalvalue, color = ~result, colors = 'Paired', marker = list(opacity = 0.8, sizemode = 'area'))%>%
-# layout(title = "Branch Profitability - Predicted", xaxis = list(showgrid = TRUE), yaxis = list(showgrid = TRUE), showlegend = TRUE)
-
-plot_ly(finaldata,x = ~total.income, y = ~expenditure , hoverinfo = 'text', 
-        text = ~paste('</br>Branch: ',branch,'</br>NetProfit: ', finalvalue), 
-        type = "scatter", mode = 'markers', size = ~finalvalue, color = ~result, colors = 'Paired', 
-        marker = list(opacity = 0.8, sizemode = 'area'))%>%
-  layout(title = "Branch Profitability - Actual", xaxis = list(showgrid = TRUE, title = 'Total Income'),
-         yaxis = list(showgrid = TRUE, title = 'Expenditure'), showlegend = TRUE)
-
-
-plot_ly(finaldata,x = ~total.income, y = ~expenditure , hoverinfo = 'text',
-        text = ~paste('</br>Branch: ',branch,'</br>NetProfit: ', finalvalue),
-        type = "scatter", mode = 'markers', size = ~finalvalue, color = ~modelresult, colors = 'Paired', 
-        marker = list(opacity = 0.8, sizemode = 'area'))%>%
-  layout(title = "Branch Profitability - Predicted", xaxis = list(showgrid = TRUE, title = 'Total Income'),
-         yaxis = list(showgrid = TRUE, title = 'Expenditure'), showlegend = TRUE)
-
-plot_ly(finaldata,x = ~total.income, y = ~expenditure , hoverinfo = 'text',
-        text = ~paste('</br>Branch: ',branch,'</br>Net Profit: ',finalvalue),
-        type = "scatter", mode = 'markers', size = ~finalvalue, color = ~factor(truevalue), colors = 'RdYlGn', 
-        marker = list(opacity = 0.8, sizemode = 'area'))%>%
-  layout(title = "Branch Profitability - Comparison", xaxis = list(showgrid = TRUE, title = 'Total Income'),
-         yaxis = list(showgrid = TRUE, title = 'Expenditure'), showlegend = TRUE)
-
-
-#plot_ly (x =c(1,2, 3 ),y =c(5,6, 7 ),type = 'scatter',mode = 'markers',size =c(1,5,10),
- # marker = list(color =c('red','blue','green')))
 
